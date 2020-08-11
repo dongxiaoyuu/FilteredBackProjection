@@ -17,10 +17,16 @@ And the origin author is Poles.
 - pip install numpy
 
 
-## 
+## Demo
+
+### Original picture
+![](./Data/shepplogan.png)
 
 
 
+![](./Data/OriginalAndRadomTransformPicture.png)
 
+
+![](./Data/ReconstructionAndError.png)
 
 
