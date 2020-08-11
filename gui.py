@@ -1,6 +1,7 @@
 import os
-from Tkinter import *
-from tkFileDialog import askopenfilename
+from tkinter.filedialog import askopenfilename
+from tkinter import *
+
 
 root = Tk()
 root.withdraw()

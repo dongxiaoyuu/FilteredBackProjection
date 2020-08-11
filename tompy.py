@@ -1,5 +1,4 @@
 from __future__ import division
-#import scipy
 from scipy import misc
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,15 +6,18 @@ from scipy.fftpack import fft, ifft, fftfreq
 from scipy.interpolate import interp1d
 from gui import imagename
 
+
 def grey_scale(photo):
-    return photo[:,:,0] * 0.299 + photo[:,:,1] * 0.587 + photo[:,:,2] * 0.114
+    return photo[:, :, 0] * 0.299 + photo[:, :, 1] * 0.587 + photo[:, :, 2] * 0.114
+
 
 def radon_transform(image, steps):
     radon = np.zeros((steps, len(image)), dtype='float64')
     for s in range(steps):
-        rotation = misc.imrotate(image, -s*180/steps).astype('float64')
-        radon[:,s] = sum(rotation)
+        rotation = misc.imrotate(image, -s * 180 / steps).astype('float64')
+        radon[:, s] = sum(rotation)
     return radon
+
 
 def sinogram_circle_to_square(sinogram):
     diagonal = int(np.ceil(np.sqrt(2) * sinogram.shape[0]))
@@ -26,9 +28,11 @@ def sinogram_circle_to_square(sinogram):
     pad_width = ((pad_before, pad - pad_before), (0, 0))
     return np.pad(sinogram, pad_width, mode='constant', constant_values=0)
 
-def angle(i): return (np.pi*i)/N
 
-def iradon_transform(radon_image, theta=None,interpolation='linear'):
+def angle(i): return (np.pi * i) / N
+
+
+def iradon_transform(radon_image, theta=None, interpolation='linear'):
     output_size = radon_image.shape[0]
     radon_image = sinogram_circle_to_square(radon_image)
     th = (np.pi / 180.0) * theta
@@ -38,9 +42,9 @@ def iradon_transform(radon_image, theta=None,interpolation='linear'):
         max(64, int(2 ** np.ceil(np.log2(2 * radon_image.shape[0]))))
     pad_width = ((0, projection_size_padded - radon_image.shape[0]), (0, 0))
     img = np.pad(radon_image, pad_width, mode='constant', constant_values=0)
-    f = fftfreq(projection_size_padded).reshape(-1, 1)   # digital frequency
-    omega = 2 * np.pi * f                                # angular frequency
-    fourier_filter = 2 * np.abs(f)                       # ramp filter
+    f = fftfreq(projection_size_padded).reshape(-1, 1)  # digital frequency
+    omega = 2 * np.pi * f  # angular frequency
+    fourier_filter = 2 * np.abs(f)  # ramp filter
     projection = fft(img, axis=0) * fourier_filter
     radon_filtered = np.real(ifft(projection, axis=0))
     radon_filtered = radon_filtered[:radon_image.shape[0], :]
@@ -71,24 +75,17 @@ def iradon_transform(radon_image, theta=None,interpolation='linear'):
     return reconstructed * np.pi / (2 * len(th))
 
 
-
-
-
-
-
-
-image = misc.imread(imagename,flatten=True).astype('float64') # TODO zapytanie o obrazek gui
+image = misc.imread(imagename, flatten=True).astype('float64')  # TODO zapytanie o obrazek gui
 if len(image.shape) == 3:
     image = grey_scale(image)
-image = misc.imresize(image,(220,220))
+image = misc.imresize(image, (220, 220))
 sinogram = radon_transform(image, 220)
 
-#S=220
+# S=220
 
 
 theta = np.linspace(0., 180., max(image.shape), endpoint=False)
-reconstruction_fbp = iradon_transform(sinogram,theta=theta,interpolation='cubic')
-
+reconstruction_fbp = iradon_transform(sinogram, theta=theta, interpolation='cubic')
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4.5))
 
@@ -104,12 +101,16 @@ fig.tight_layout()
 plt.show()
 
 error = reconstruction_fbp - image
-print('FBP rms reconstruction error: %.3g' % np.sqrt(np.mean(error**2)))
+print('FBP rms reconstruction error: %.3g' % np.sqrt(np.mean(error ** 2)))
 
 imkwargs = dict(vmin=-0.2, vmax=0.2)
+# ValueError: 'box-forced' is not a valid value for adjustable; supported values are 'box', 'datalim'
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4.5),
+#                                sharex=True, sharey=True,
+#                                subplot_kw={'adjustable': 'box-forced'})
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4.5),
                                sharex=True, sharey=True,
-                               subplot_kw={'adjustable': 'box-forced'})
+                               subplot_kw={'adjustable': 'box'})
 ax1.set_title("Reconstruction\nFiltered back projection")
 ax1.imshow(reconstruction_fbp, cmap=plt.cm.Greys_r)
 ax2.set_title("Reconstruction error\nFiltered back projection")
