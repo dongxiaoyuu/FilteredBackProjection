@@ -4,6 +4,8 @@
 This code is implementation of radon transform and 
 inverse radon transform(using fbp) for image reconstruction.
 
+And the origin author is Poles.
+
 
 
 ## Install package
