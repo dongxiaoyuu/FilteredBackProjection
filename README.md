@@ -68,9 +68,9 @@ or
 
 - pip install scipy==1.2.0
 
-- pip install matplotlib
+- pip install matplotlib==3.3.0
 
-- pip install numpy
+- pip install numpy=1.19.1
 
 
 ## Demo
